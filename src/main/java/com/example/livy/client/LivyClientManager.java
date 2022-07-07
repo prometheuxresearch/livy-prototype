@@ -28,6 +28,7 @@ public class LivyClientManager {
 	
 	public LivyClient getLivyClient() throws Exception {
 		if (this.livyClient == null) {
+			String hdfsJarFile = LivyConfigurationManager.getInstance().getProperty("livy.hdfs.jar.file");
 //			String clouderaClientId = LivyConfigurationManager.getInstance().getProperty("livy.client.auth.id");
 //			String clouderaClientSecret = LivyConfigurationManager.getInstance().getProperty("livy.client.auth.secret");
 			Map<String, String> config = new HashMap<>();
@@ -39,26 +40,39 @@ public class LivyClientManager {
 //			config.put("client.auth.secret", clouderaClientSecret);
 			
 			String javaSecurityAuthLoginConfig = LivyConfigurationManager.getInstance().getProperty("java.security.auth.login.config");
-			System.setProperty("java.security.auth.login.config", javaSecurityAuthLoginConfig);
-			
+//			System.setProperty("java.security.auth.login.config", javaSecurityAuthLoginConfig);
+//			
 			String javaSecurityKrb5Conf = LivyConfigurationManager.getInstance().getProperty("java.security.krb5.conf");
-			System.setProperty("java.security.krb5.conf", javaSecurityKrb5Conf);
-			
-			String sunSecurityKrb5Debug = LivyConfigurationManager.getInstance().getProperty("sun.security.krb5.debug");
-			System.setProperty("sun.security.krb5.debug", sunSecurityKrb5Debug);
-			
-			String javaSecurityAuthUseSubjectCredsOnly = LivyConfigurationManager.getInstance().getProperty("javax.security.auth.useSubjectCredsOnly");
-			System.setProperty("javax.security.auth.useSubjectCredsOnly", javaSecurityAuthUseSubjectCredsOnly);
-			
-			System.out.println("System Properties:"+System.getProperties());
+//			System.setProperty("java.security.krb5.conf", javaSecurityKrb5Conf);
+//			
+//			String sunSecurityKrb5Debug = LivyConfigurationManager.getInstance().getProperty("sun.security.krb5.debug");
+//			System.setProperty("sun.security.krb5.debug", sunSecurityKrb5Debug);
+//			
+//			String javaSecurityAuthUseSubjectCredsOnly = LivyConfigurationManager.getInstance().getProperty("javax.security.auth.useSubjectCredsOnly");
+//			System.setProperty("javax.security.auth.useSubjectCredsOnly", javaSecurityAuthUseSubjectCredsOnly);
+//			
+//			System.out.println("System Properties:"+System.getProperties());
 
 //			config.put("spark.jars", "/home/davben/.livy-sessions/*");
 			String uri = LivyConfigurationManager.getInstance().getProperty("livy.uri");
-			livyClient = new LivyClientBuilder(false).setAll(config).setURI(new URI(uri)).build();
-			System.out.println("Uploading jars to the SparkContext...");
-			File jarFile = new File("myJarLight.jar");
-			livyClient.uploadJar(jarFile).get();
-			System.out.println("finish uploading jars to the SparkContext...");
+			livyClient = new LivyClientBuilder(false).setAll(config).setURI(new URI(uri))
+					
+	                .setConf("livy.client.http.spnego.enable", "true")
+	                .setConf("livy.client.http.auth.login.config", javaSecurityAuthLoginConfig)
+	                .setConf("livy.client.http.krb5.conf", javaSecurityKrb5Conf)
+	                .setConf("livy.client.http.krb5.debug", "true")
+					.setConf("spark.jars", hdfsJarFile)
+					
+					.build();
+//			System.out.println("Uploading jars to the SparkContext...");
+//			File jarFile = new File("myJarLight.jar");
+//			livyClient.uploadJar(jarFile).get();
+//			System.out.println("finish uploading jars to the SparkContext...");
+			
+//			System.out.println("Uploading jars from hdfs to the SparkContext...");
+//			File jarFile = new File(hdfsJarFile);
+//			livyClient.uploadJar(jarFile).get();
+//			System.out.println("finish uploading jars to the SparkContext...");
 		}
 		return livyClient;
 	}

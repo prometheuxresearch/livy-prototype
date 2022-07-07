@@ -15,8 +15,8 @@ public class JobExecutor {
 		try {
 			res = livyClient.submit(job).get();
 		} finally {
-			livyClient.stop(true);
-			LivyClientManager.getInstance().reset();
+//			livyClient.stop(true);
+//			LivyClientManager.getInstance().reset();
 		}
 		return res;
 	}
